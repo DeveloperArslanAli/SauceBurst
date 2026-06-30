@@ -6,7 +6,6 @@ import OrderConfirmationClient from '@/components/order/OrderConfirmationClient'
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // ✅ Use supabaseAdmin to bypass RLS and allow public users to read their own order
   const { data: order, error } = await supabaseAdmin
     .from('orders')
     .select('*')
@@ -15,7 +14,6 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
 
   if (error || !order) return notFound();
 
-  // Parse the notes JSON back into items
   const items = JSON.parse(order.notes || '[]');
 
   return (
@@ -45,7 +43,14 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <p className="text-white">Phone: {order.customer_phone || 'N/A'}</p>
       </div>
 
-      <OrderConfirmationClient orderId={id} total={order.total_amount} items={items} />
+      {/* Pass customer details to the client component */}
+      <OrderConfirmationClient 
+        orderId={id} 
+        total={order.total_amount} 
+        items={items}
+        customerName={order.customer_name || 'Guest'}
+        customerPhone={order.customer_phone || 'N/A'}
+      />
       
       <Link href="/" className="block mt-6 text-center text-[#ffd700] hover:underline">
         ← Continue Shopping

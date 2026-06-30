@@ -1,31 +1,56 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+﻿import supabaseAdmin from '@/app/lib/supabaseAdmin';
 import Link from 'next/link';
 import OrderStatusBadge from '@/components/admin/OrderStatusBadge';
+import RevenueDatePicker from '@/components/admin/RevenueDatePicker';
 
-export default async function AdminDashboard() {
-  const supabase = await createClient();
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ startDate?: string; endDate?: string }>;
+}) {
+  const { startDate: startParam, endDate: endParam } = await searchParams;
 
-  // 1. Fetch Total Orders Count
-  const { count: totalOrders } = await supabase
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); 
+  const lastDay = new Date(year, month + 1, 0).getDate(); 
+  
+  const defaultStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const defaultEnd = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+  const startDate = startParam || defaultStart;
+  const endDate = endParam || defaultEnd;
+
+  console.log(`🕵️ DEBUG: Querying Revenue from ${startDate} to ${endDate}`);
+
+  const { count: totalOrders } = await supabaseAdmin
     .from('orders')
     .select('*', { count: 'exact', head: true });
 
-  // 2. Fetch Total Revenue from 'completed' orders
-  const { data: revenueData } = await supabase
+  // ✅ FIX: Use explicit +05:00 timezone offsets to match Pakistan Standard Time
+  const { data: revenueData, error: revenueError } = await supabaseAdmin
     .from('orders')
-    .select('sum(total_amount)')
-    .eq('status', 'completed')
-    .maybeSingle();
-  const totalRevenue = revenueData?.sum || 0;
+    .select('total_amount')
+    .ilike('status', 'completed')
+    .gte('created_at', startDate + 'T00:00:00+05:00')
+    .lte('created_at', endDate + 'T23:59:59+05:00');
 
-  // 3. Fetch Active Items Count
-  const { count: activeItems } = await supabase
+  if (revenueError) {
+    console.error('❌ Supabase Error:', revenueError);
+  }
+
+  console.log(`📦 DEBUG: Raw Revenue Data from DB:`, JSON.stringify(revenueData, null, 2));
+
+  const totalRevenue = revenueData?.reduce((acc, order) => {
+    return acc + (Number(order.total_amount) || 0);
+  }, 0) || 0;
+
+  const { count: activeItems } = await supabaseAdmin
     .from('items')
     .select('*', { count: 'exact', head: true })
     .eq('is_available', true);
 
-  // 4. Fetch 5 Most Recent Orders
-  const { data: recentOrders } = await supabase
+  const { data: recentOrders } = await supabaseAdmin
     .from('orders')
     .select('*')
     .order('created_at', { ascending: false })
@@ -35,14 +60,19 @@ export default async function AdminDashboard() {
     <div>
       <h1 className="text-3xl font-bold text-[#ffd700] mb-6">Dashboard</h1>
       
-      {/* Stats Grid */}
+      <div className="mb-6">
+        <RevenueDatePicker defaultStart={defaultStart} defaultEnd={defaultEnd} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-[#2a2a2a] p-6 rounded-lg border border-[#ffd700]/20 shadow-md">
           <h2 className="text-gray-400 text-sm uppercase font-semibold tracking-wider">Total Orders</h2>
           <p className="text-4xl font-bold text-white mt-2">{totalOrders ?? 0}</p>
         </div>
         <div className="bg-[#2a2a2a] p-6 rounded-lg border border-[#ffd700]/20 shadow-md">
-          <h2 className="text-gray-400 text-sm uppercase font-semibold tracking-wider">Total Revenue</h2>
+          <h2 className="text-gray-400 text-sm uppercase font-semibold tracking-wider">
+            Revenue ({startDate} to {endDate})
+          </h2>
           <p className="text-4xl font-bold text-white mt-2">Rs. {totalRevenue}</p>
         </div>
         <div className="bg-[#2a2a2a] p-6 rounded-lg border border-[#ffd700]/20 shadow-md">
@@ -51,9 +81,11 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent Orders Section */}
       <div className="bg-[#2a2a2a] p-6 rounded-lg border border-[#ffd700]/20 shadow-md">
-        <h2 className="text-xl font-bold text-[#ffd700] mb-4">Recent Orders</h2>
+        <div className="flex justify-between items-center mb-4 border-b border-[#ffd700]/10 pb-2">
+          <h2 className="text-xl font-bold text-[#ffd700]">Recent Orders</h2>
+          <Link href="/admin/orders" className="text-xs text-gray-400 hover:text-[#ffd700] underline transition">View All</Link>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-400">
             <thead className="text-xs uppercase text-gray-500 border-b border-[#ffd700]/10">

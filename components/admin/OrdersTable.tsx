@@ -31,6 +31,7 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                 <th className="px-6 py-4">Phone</th>
                 <th className="px-6 py-4">Total</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Source</th>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
@@ -38,7 +39,6 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
             <tbody className="divide-y divide-[#ffd700]/10">
               {orders && orders.length > 0 ? (
                 orders.map((order) => {
-                  // Parse items from notes (stored as JSON)
                   let items = [];
                   try { items = JSON.parse(order.notes || '[]'); } catch (e) {}
 
@@ -51,13 +51,19 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                       <td className="px-6 py-4">
                         <OrderStatusBadge status={order.status || 'pending'} />
                       </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${
+                          order.source === 'website' ? 'bg-blue-900 text-blue-300' : 'bg-green-900 text-green-300'
+                        }`}>
+                          {order.source}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 text-gray-400 text-xs">
                         {new Date(order.created_at).toLocaleDateString('en-GB', {
                           day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
                         })}
                       </td>
                       <td className="px-6 py-4 flex gap-2 items-center">
-                        {/* View Items Modal Trigger */}
                         <button
                           onClick={() => { setSelectedOrder(order); setIsModalOpen(true); }}
                           className="px-3 py-1 bg-[#ffd700] text-[#1a1a1a] text-xs font-bold rounded hover:bg-[#ffcc00] transition"
@@ -65,7 +71,6 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                           View Items
                         </button>
 
-                        {/* Status Update Dropdown */}
                         <select
                           defaultValue={order.status || 'pending'}
                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -82,7 +87,7 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                     No orders found.
                   </td>
                 </tr>
@@ -92,7 +97,6 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
         </div>
       </div>
 
-      {/* Modal Render */}
       {selectedOrder && (
         <OrderDetailsModal 
           isOpen={isModalOpen}

@@ -1,18 +1,19 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
+import supabaseAdmin from '@/app/lib/supabaseAdmin';
 
 export async function GET() {
-  const supabase = await createClient(); // ✅ Added await
-
-  const { data, error } = await supabase
+  // ✅ Use supabaseAdmin to bypass RLS and fetch the exact DB value
+  const { data, error } = await supabaseAdmin
     .from('settings')
     .select('value')
     .eq('key', 'whatsapp')
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
-    return NextResponse.json({ whatsapp: null });
+  if (error) {
+    console.error('Failed to fetch settings:', error);
+    return NextResponse.json({ whatsapp: null }, { status: 500 });
   }
 
-  return NextResponse.json({ whatsapp: data.value });
+  // Return the exact value stored in the database
+  return NextResponse.json({ whatsapp: data?.value || null });
 }

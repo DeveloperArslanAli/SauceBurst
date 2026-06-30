@@ -4,12 +4,11 @@ import { revalidatePath } from 'next/cache';
 import supabaseAdmin from '@/app/lib/supabaseAdmin';
 import { z } from 'zod';
 
-const StatusSchema = z.enum(['pending', 'preparing', 'completed', 'canceled'], {
+const StatusSchema = z.enum(['pending', 'preparing', 'completed', 'canceled', 'received'], {
   errorMap: () => ({ message: 'Invalid order status.' }),
 });
 
 export async function updateOrderStatus(orderId: string, newStatus: string) {
-  // Validate status
   const validation = StatusSchema.safeParse(newStatus);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -25,5 +24,23 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
   }
 
   revalidatePath('/admin/orders');
+  revalidatePath('/admin'); // ✅ Force dashboard to refresh immediately
   return { success: true };
+}
+
+export async function confirmOrderOnline(orderId: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('orders')
+      .update({ status: 'received', source: 'website' })
+      .eq('id', orderId);
+
+    if (error) throw new Error(error.message);
+    
+    revalidatePath(`/order/${orderId}`);
+    revalidatePath('/admin'); // ✅ Force dashboard to refresh immediately
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Failed to confirm online order.' };
+  }
 }
