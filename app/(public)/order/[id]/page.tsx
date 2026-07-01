@@ -1,4 +1,4 @@
-﻿import supabaseAdmin from '@/app/lib/supabaseAdmin';
+import supabaseAdmin from '@/app/lib/supabaseAdmin';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import OrderConfirmationClient from '@/components/order/OrderConfirmationClient';
@@ -24,7 +24,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       <div className="bg-[#2a2a2a] border border-[#ffd700]/20 rounded-xl p-6 mb-6">
         <h2 className="text-xl font-bold text-[#ffd700] border-b border-[#ffd700]/10 pb-3 mb-4">Order Summary</h2>
         <div className="space-y-2">
-          {items.map((item: any, idx: number) => (
+          {items.map((item: { name: string; quantity: number; price: number }, idx: number) => (
             <div key={idx} className="flex justify-between text-gray-300 text-sm">
               <span>{item.name} x{item.quantity}</span>
               <span>Rs. {item.price * item.quantity}</span>

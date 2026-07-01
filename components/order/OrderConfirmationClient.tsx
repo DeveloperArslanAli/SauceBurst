@@ -1,8 +1,14 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { confirmOrderOnline } from '@/app/actions/orders';
+
+type OrderItem = {
+  name: string;
+  quantity: number;
+  price: number;
+};
 
 export default function OrderConfirmationClient({ 
   orderId, 
@@ -13,7 +19,7 @@ export default function OrderConfirmationClient({
 }: { 
   orderId: string; 
   total: number; 
-  items: any[]; 
+  items: OrderItem[]; 
   customerName: string; 
   customerPhone: string;
 }) {
@@ -27,7 +33,7 @@ export default function OrderConfirmationClient({
     msg += `*Customer:* ${customerName || 'Guest'}\n`;
     msg += `*Phone:* ${customerPhone || 'N/A'}\n\n`;
     msg += `*Items:*\n`;
-    items.forEach((item: any) => {
+    items.forEach((item: OrderItem) => {
       msg += `- ${item.name} x${item.quantity} = Rs. ${item.price * item.quantity}\n`;
     });
     msg += `\n*Total: Rs. ${total}*\n\nPlease confirm my order.`;
@@ -36,6 +42,11 @@ export default function OrderConfirmationClient({
 
   // ✅ Updated WhatsApp Logic: Opens WhatsApp + Redirects to Home afterwards
   const handleWhatsApp = async () => {
+    const message = buildMessage();
+    const fallbackNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923047234727';
+    const initialUrl = `https://wa.me/${fallbackNumber}?text=${message}`;
+    setLinkToCopy(initialUrl);
+
     // Open a blank window first to satisfy browser popup blockers
     const newWindow = window.open('', '_blank');
     if (!newWindow || newWindow.closed) {
@@ -47,10 +58,10 @@ export default function OrderConfirmationClient({
     try {
       const res = await fetch('/api/settings');
       const data = await res.json();
-      const latestNumber = data.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923xxxxxxxxx';
+      const latestNumber = data.whatsapp || fallbackNumber;
       
-      const message = buildMessage();
       const url = `https://wa.me/${latestNumber}?text=${message}`;
+      setLinkToCopy(url);
       newWindow.location.href = url;
 
       // 🚀 Success Toast and Redirect to Homepage
@@ -59,9 +70,13 @@ export default function OrderConfirmationClient({
         window.location.href = '/'; 
       }, 1500); 
 
-    } catch (error) {
-      newWindow.close(); // Close the empty tab if it fails
-      toast.error('Failed to fetch WhatsApp number');
+    } catch {
+      // Fallback: use initial URL for the opened window if API fails
+      newWindow.location.href = initialUrl;
+      toast.success('✅ Redirecting to WhatsApp...');
+      setTimeout(() => {
+        window.location.href = '/'; 
+      }, 1500); 
     }
   };
 

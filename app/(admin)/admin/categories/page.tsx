@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+import { createClient } from '@/app/lib/supabaseServer';
 import Link from 'next/link';
 import DeleteCategoryButton from '@/components/admin/DeleteCategoryButton';
 
@@ -50,7 +50,7 @@ export default async function AdminCategoriesPage() {
               ) : (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                    No categories found. Click "Add Category" to create one.
+                    No categories found. Click &quot;Add Category&quot; to create one.
                   </td>
                 </tr>
               )}

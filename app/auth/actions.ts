@@ -1,9 +1,9 @@
-﻿'use server';
+'use server';
 
 import { createClient } from '@/app/lib/supabaseServer';
 import { redirect } from 'next/navigation';
 
-export async function signIn(prevState: any, formData: FormData) {
+export async function signIn(prevState: { error: string | null }, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
@@ -30,6 +30,7 @@ export async function signIn(prevState: any, formData: FormData) {
 
   // ✅ Redirect MUST be outside the try/catch block!
   redirect('/admin');
+  return { error: null };
 }
 
 export async function signOut() {

@@ -27,7 +27,7 @@ export default function ItemCard({ item }: { item: Item }) {
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-200"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          loading="eager"  // Helps LCP for above-the-fold images
+          unoptimized={true} // ✅ Prevents Next.js image optimizer timeout
           onError={() => setImgSrc('https://placehold.co/400x300/1a1a1a/ffd700?text=No+Image')}
         />
       </Link>

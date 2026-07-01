@@ -1,6 +1,5 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+import { createClient } from '@/app/lib/supabaseServer';
 import ItemForm from '@/components/admin/ItemForm';
-import { notFound } from 'next/navigation';
 
 export default async function NewItemPage() {
   const supabase = await createClient();

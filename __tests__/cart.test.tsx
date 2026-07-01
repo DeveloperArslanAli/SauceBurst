@@ -1,15 +1,20 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CartProvider, useCart } from '@/components/cart/CartContext';
 
-// Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
+  getItem: jest.fn().mockReturnValue(null),
   setItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true });
 
-// Test Component to access context
+const sessionStorageMock = {
+  getItem: jest.fn().mockReturnValue(null),
+  setItem: jest.fn(),
+  clear: jest.fn(),
+};
+Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock, writable: true });
+
 function TestComponent() {
   const { cart, totalItems, totalPrice, addItem, removeItem, updateQuantity, clearCart } = useCart();
   return (
@@ -34,6 +39,8 @@ describe('CartContext', () => {
   beforeEach(() => {
     localStorageMock.getItem.mockClear();
     localStorageMock.setItem.mockClear();
+    sessionStorageMock.getItem.mockClear();
+    sessionStorageMock.setItem.mockClear();
   });
 
   it('should add an item to the cart', () => {
@@ -46,6 +53,7 @@ describe('CartContext', () => {
     fireEvent.click(screen.getByText('Add Burger'));
     expect(screen.getByTestId('total-items')).toHaveTextContent('1');
     expect(screen.getByTestId('total-price')).toHaveTextContent('10');
+    // localStorage.setItem is called by the persist effect after state update
     expect(localStorageMock.setItem).toHaveBeenCalled();
   });
 
@@ -82,10 +90,10 @@ describe('CartContext', () => {
       </CartProvider>
     );
 
-    fireEvent.click(screen.getByText('Add Pizza')); // Qty 1
-    fireEvent.click(screen.getByText('Update Pizza Qty 3')); // Qty 3
+    fireEvent.click(screen.getByText('Add Pizza'));
+    fireEvent.click(screen.getByText('Update Pizza Qty 3'));
     expect(screen.getByTestId('total-items')).toHaveTextContent('3');
-    expect(screen.getByTestId('total-price')).toHaveTextContent('45'); // 3 * 15
+    expect(screen.getByTestId('total-price')).toHaveTextContent('45');
   });
 
   it('should clear the cart', () => {

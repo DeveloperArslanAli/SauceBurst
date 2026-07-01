@@ -1,22 +1,24 @@
-﻿'use client';
+'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-export default function RevenueDatePicker({ defaultStart = '', defaultEnd = '' }: { defaultStart?: string; defaultEnd?: string }) {
+export default function RevenueDatePicker({ 
+  defaultStart = '', 
+  defaultEnd = '',
+  activeStart = '',
+  activeEnd = ''
+}: { 
+  defaultStart?: string; 
+  defaultEnd?: string;
+  activeStart?: string;
+  activeEnd?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Initialize state to fallback to defaultStart/End, ensuring inputs are NEVER empty
-  const [startDate, setStartDate] = useState(defaultStart);
-  const [endDate, setEndDate] = useState(defaultEnd);
-
-  // Sync state with URL params on load or after back/forward navigation
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setStartDate(params.get('startDate') || defaultStart);
-    setEndDate(params.get('endDate') || defaultEnd);
-  }, [defaultStart, defaultEnd]);
+  const [startDate, setStartDate] = useState(activeStart || defaultStart);
+  const [endDate, setEndDate] = useState(activeEnd || defaultEnd);
 
   const handleApply = () => {
     const params = new URLSearchParams();

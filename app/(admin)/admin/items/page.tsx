@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+import { createClient } from '@/app/lib/supabaseServer';
 import Link from 'next/link';
 import DeleteItemButton from '@/components/admin/DeleteItemButton';
 
@@ -64,7 +64,7 @@ export default async function AdminItemsPage() {
               ) : (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                    No items found. Click "Add Item" to create one.
+                    No items found. Click &quot;Add Item&quot; to create one.
                   </td>
                 </tr>
               )}

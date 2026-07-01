@@ -14,6 +14,7 @@ export default function ItemImage({ src, alt, sizes }: { src: string; alt: strin
         fill
         className="object-cover"
         sizes={sizes}
+        unoptimized={true} // ✅ Prevents Next.js image optimizer timeout
         onError={() => setImgSrc('https://placehold.co/600x600/1a1a1a/ffd700?text=No+Image')}
       />
     </div>

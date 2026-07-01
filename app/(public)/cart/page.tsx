@@ -35,7 +35,7 @@ export default function CartPage() {
                   alt={item.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 200px" // ✅ Added sizes prop
+                  sizes="(max-width: 768px) 100vw, 200px"
                 />
               </div>
               <div className="flex-1">

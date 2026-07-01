@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 export default function OrderDetailsModal({ 
   isOpen, 
@@ -9,7 +9,7 @@ export default function OrderDetailsModal({
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
-  items: any[]; 
+  items: { name: string; quantity: number; price: number }[]; 
   customerName: string; 
   total: number; 
 }) {

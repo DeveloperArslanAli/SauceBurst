@@ -1,4 +1,4 @@
-﻿import supabaseAdmin from '@/app/lib/supabaseAdmin';
+import supabaseAdmin from '@/app/lib/supabaseAdmin';
 import Link from 'next/link';
 import OrderStatusBadge from '@/components/admin/OrderStatusBadge';
 import RevenueDatePicker from '@/components/admin/RevenueDatePicker';
@@ -61,7 +61,13 @@ export default async function AdminDashboard({
       <h1 className="text-3xl font-bold text-[#ffd700] mb-6">Dashboard</h1>
       
       <div className="mb-6">
-        <RevenueDatePicker defaultStart={defaultStart} defaultEnd={defaultEnd} />
+        <RevenueDatePicker 
+          key={`${startDate}-${endDate}`}
+          defaultStart={defaultStart} 
+          defaultEnd={defaultEnd} 
+          activeStart={startDate}
+          activeEnd={endDate}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

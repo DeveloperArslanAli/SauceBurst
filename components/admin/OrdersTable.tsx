@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { updateOrderStatus } from '@/app/actions/orders';
@@ -6,8 +6,19 @@ import toast from 'react-hot-toast';
 import OrderStatusBadge from './OrderStatusBadge';
 import OrderDetailsModal from './OrderDetailsModal';
 
-export default function OrdersTable({ orders }: { orders: any[] }) {
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+type Order = {
+  id: string;
+  customer_name: string | null;
+  customer_phone: string | null;
+  total_amount: number;
+  status: string;
+  source: string;
+  created_at: string;
+  notes: string | null;
+};
+
+export default function OrdersTable({ orders }: { orders: Order[] }) {
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -39,9 +50,6 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
             <tbody className="divide-y divide-[#ffd700]/10">
               {orders && orders.length > 0 ? (
                 orders.map((order) => {
-                  let items = [];
-                  try { items = JSON.parse(order.notes || '[]'); } catch (e) {}
-
                   return (
                     <tr key={order.id} className="hover:bg-[#333] transition">
                       <td className="px-6 py-4 font-mono text-white text-xs">{order.id.slice(0, 8)}...</td>
@@ -102,7 +110,7 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           items={JSON.parse(selectedOrder.notes || '[]')}
-          customerName={selectedOrder.customer_name}
+          customerName={selectedOrder.customer_name || 'Guest'}
           total={selectedOrder.total_amount}
         />
       )}

@@ -1,9 +1,11 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+import { createClient } from '@/app/lib/supabaseServer';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPublicImageUrl } from '@/app/lib/utils';
 import ItemDetailClient from '@/components/menu/ItemDetailClient';
 import ItemImage from '@/components/ui/ItemImage';
+
+export const revalidate = 60;
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -37,34 +39,53 @@ export default async function ItemPage({ params }: Props) {
 
   if (error || !item) return notFound();
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-      {/* Use the client ItemImage component */}
-      <ItemImage
-        src={getPublicImageUrl(item.image_url)}
-        alt={item.name}
-        sizes="(max-width: 768px) 100vw, 50vw"
-      />
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": item.name,
+    "description": item.description || 'Delicious food from Sauce Burst',
+    "image": getPublicImageUrl(item.image_url),
+    "offers": {
+      "@type": "Offer",
+      "price": item.price,
+      "priceCurrency": "PKR",
+      "availability": "https://schema.org/InStock",
+    },
+  };
 
-      <div>
-        <Link 
-          href={`/category/${item.categories.slug}`} 
-          className="inline-block text-sm text-[#ffd700] hover:underline mb-2"
-        >
-          ← Back to {item.categories.name}
-        </Link>
-        <h1 className="text-4xl font-black text-[#ffd700] mb-2">{item.name}</h1>
-        <p className="text-3xl font-bold text-white mb-4">Rs. {item.price}</p>
-        <p className="text-gray-300 text-lg leading-relaxed mb-6">
-          {item.description || 'No description available.'}
-        </p>
-        <ItemDetailClient 
-          id={item.id}
-          name={item.name}
-          price={item.price}
-          image_url={item.image_url}
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <ItemImage
+          src={getPublicImageUrl(item.image_url)}
+          alt={item.name}
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
+
+        <div>
+          <Link 
+            href={`/category/${item.categories.slug}`} 
+            className="inline-block text-sm text-[#ffd700] hover:underline mb-2"
+          >
+            ← Back to {item.categories.name}
+          </Link>
+          <h1 className="text-4xl font-black text-[#ffd700] mb-2">{item.name}</h1>
+          <p className="text-3xl font-bold text-white mb-4">Rs. {item.price}</p>
+          <p className="text-gray-300 text-lg leading-relaxed mb-6">
+            {item.description || 'No description available.'}
+          </p>
+          <ItemDetailClient 
+            id={item.id}
+            name={item.name}
+            price={item.price}
+            image_url={item.image_url}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

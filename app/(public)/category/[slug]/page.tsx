@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation';
 import CategoryNav from '@/components/menu/CategoryNav';
 import ItemCard from '@/components/menu/ItemCard';
 
+// ✅ ISR: Revalidate page every 60 seconds
+export const revalidate = 60;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -34,8 +37,21 @@ export default async function CategoryPage({ params }: Props) {
     .eq('is_available', true)
     .order('name');
 
+  // ✅ JSON-LD Structured Data (Schema.org)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `${currentCategory.name} Menu`,
+    "description": `Browse our delicious ${slug} menu items.`,
+    "url": `https://your-domain.com/category/${slug}`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <CategoryNav categories={categories || []} activeSlug={slug} />
       <h2 className="text-2xl font-bold text-[#ffd700] mb-6 border-b border-[#ffd700]/20 pb-2">
         {currentCategory.name}

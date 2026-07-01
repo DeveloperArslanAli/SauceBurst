@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -172,7 +172,8 @@ export async function deleteItem(id: string) {
     if (error) throw error;
     revalidatePath('/admin/items');
     revalidatePath('/');
-  } catch (err: any) {
-    throw new Error('Failed to delete item: ' + err.message);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    throw new Error('Failed to delete item: ' + message);
   }
 }

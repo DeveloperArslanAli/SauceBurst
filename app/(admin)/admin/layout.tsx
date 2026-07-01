@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/app/lib/supabaseServer';
+import { createClient } from '@/app/lib/supabaseServer';
 import { redirect } from 'next/navigation';
 import { signOut } from '@/app/auth/actions';
 import Link from 'next/link';
@@ -38,11 +38,11 @@ export default async function AdminLayout({
         </Link>
 
         <nav className="flex-1 space-y-1">
-          <a href="/admin" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Dashboard</a>
-          <a href="/admin/items" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Items</a>
-          <a href="/admin/categories" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Categories</a>
-          <a href="/admin/orders" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Orders</a>
-          <a href="/admin/settings" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Settings</a>
+          <Link href="/admin" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Dashboard</Link>
+          <Link href="/admin/items" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Items</Link>
+          <Link href="/admin/categories" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Categories</Link>
+          <Link href="/admin/orders" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Orders</Link>
+          <Link href="/admin/settings" className="block py-2 px-4 rounded-lg hover:bg-[#333] hover:text-[#ffd700] transition">Settings</Link>
         </nav>
 
         <form action={signOut} className="mt-auto pt-4 border-t border-[#ffd700]/10">

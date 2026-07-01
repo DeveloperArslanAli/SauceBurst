@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -111,7 +111,8 @@ export async function deleteCategory(id: string) {
     revalidatePath('/admin/categories');
     revalidatePath('/admin/items');
     revalidatePath('/');
-  } catch (err: any) {
-    throw new Error('Failed to delete category: ' + err.message);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    throw new Error('Failed to delete category: ' + message);
   }
 }

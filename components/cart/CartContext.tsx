@@ -22,19 +22,43 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// ✅ Generate a unique guestId per browser Tab (sessionStorage)
+function getGuestId(): string {
+  if (typeof window === 'undefined') return 'default';
+  let id = sessionStorage.getItem('guestId');
+  if (!id) {
+    id = Math.random().toString(36).substring(2, 10);
+    sessionStorage.setItem('guestId', id);
+  }
+  return id;
+}
+
+function getCartKey(guestId: string): string {
+  return `cart_${guestId}`;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // Lazily initialize guestId and cart from storage to avoid setState-in-effect lint error
+  const [guestId] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'default';
+    return getGuestId();
+  });
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const id = getGuestId();
+    try {
+      const stored = localStorage.getItem(getCartKey(id));
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Load from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('cart');
-    if (stored) setCart(JSON.parse(stored));
-  }, []);
-
-  // Save to localStorage on change
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    if (guestId) {
+      localStorage.setItem(getCartKey(guestId), JSON.stringify(cart));
+    }
+  }, [cart, guestId]);
 
   const addItem = (item: Omit<CartItem, 'quantity'>) => {
     setCart((prev) => {
@@ -54,7 +78,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const updateQuantity = (id: string, newQuantity: number) => {
     setCart((prev) => {
-      // Remove item if quantity goes to 0 or below
       if (newQuantity <= 0) {
         return prev.filter((item) => item.id !== id);
       }

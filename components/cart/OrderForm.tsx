@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useCart } from './CartContext';
@@ -28,7 +28,7 @@ export default function OrderForm() {
     // Validate inputs
     const validation = orderSchema.safeParse({ name, phone });
     if (!validation.success) {
-      const errorMsg = validation.error.errors[0].message;
+      const errorMsg = validation.error.issues[0].message;
       toast.error(errorMsg);
       return;
     }
@@ -64,8 +64,9 @@ export default function OrderForm() {
       clearCart();
       router.push(`/order/${order.id}`);
       toast.success('Order placed successfully!');
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
