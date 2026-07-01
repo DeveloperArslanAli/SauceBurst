@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { CartProvider } from '@/components/cart/CartContext';
 import CartIcon from '@/components/cart/CartIcon';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
@@ -84,12 +84,7 @@ export default async function PublicLayout({ children }: { children: React.React
             </nav>
 
             <div className="flex items-center gap-6">
-              <Link 
-                href="/auth/sign-in" 
-                className="text-sm font-bold text-gray-300 hover:text-[#ffd700] transition duration-200 hidden sm:block bg-[#2a2a2a] px-4 py-2 rounded-full border border-transparent hover:border-[#ffd700]/30"
-              >
-                Admin Login
-              </Link>
+              {/* 🚫 Admin Login button has been completely removed from the public navbar as requested. */}
               <CartIcon />
             </div>
           </div>
@@ -135,7 +130,6 @@ export default async function PublicLayout({ children }: { children: React.React
                 <li><Link href="/#menu" className="hover:text-[#ffd700] transition duration-200">Our Menu</Link></li>
                 <li><Link href="/#store" className="hover:text-[#ffd700] transition duration-200">Store Finder</Link></li>
                 <li><Link href="/cart" className="hover:text-[#ffd700] transition duration-200">Shopping Cart</Link></li>
-                <li><Link href="/auth/sign-in" className="hover:text-[#ffd700] transition duration-200">Admin Area</Link></li>
               </ul>
             </div>
 
