@@ -93,7 +93,7 @@ export default function MenuSlider({ items }: { items: Item[] }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="min-w-[280px] sm:min-w-[320px] md:min-w-[340px] flex-shrink-0 snap-start"
+            className="flex-shrink-0 snap-start"
           >
             <ItemCard item={item} />
           </div>

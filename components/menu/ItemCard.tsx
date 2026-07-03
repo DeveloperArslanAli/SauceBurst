@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,30 +19,43 @@ export default function ItemCard({ item }: { item: Item }) {
   const [imgSrc, setImgSrc] = useState(getPublicImageUrl(item.image_url));
 
   return (
-    <div className="bg-[#2a2a2a] rounded-xl border border-[#ffd700]/20 p-4 hover:border-[#ffd700]/50 transition-all">
-      <Link href={`/item/${item.id}`} className="block relative w-full h-48 mb-4 rounded-lg overflow-hidden bg-[#1a1a1a] group">
+    // Fixed width + fixed height card — all cards are guaranteed the same size
+    <div className="flex flex-col w-[300px] h-[380px] bg-[#2a2a2a] rounded-xl border border-[#ffd700]/20 hover:border-[#ffd700]/50 hover:shadow-lg hover:shadow-[#ffd700]/5 transition-all duration-300 flex-shrink-0 overflow-hidden">
+      
+      {/* Fixed-height image area */}
+      <Link href={`/item/${item.id}`} className="block relative w-full h-[185px] bg-[#1a1a1a] group overflow-hidden flex-shrink-0">
         <Image
           src={imgSrc}
           alt={item.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-200"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          unoptimized={true} // ✅ Prevents Next.js image optimizer timeout
-          onError={() => setImgSrc('https://placehold.co/400x300/1a1a1a/ffd700?text=No+Image')}
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="300px"
+          onError={() => setImgSrc('https://placehold.co/300x185/1a1a1a/ffd700?text=No+Image')}
         />
       </Link>
-      <Link href={`/item/${item.id}`} className="block">
-        <h3 className="text-xl font-bold text-[#ffd700] hover:text-[#ffcc00] transition">{item.name}</h3>
-      </Link>
-      <p className="text-gray-400 text-sm mt-1 line-clamp-2">{item.description}</p>
-      <div className="flex items-center justify-between mt-4">
-        <span className="text-2xl font-bold text-white">Rs. {item.price}</span>
-        <button
-          onClick={() => addItem(item)}
-          className="px-4 py-2 bg-[#ff6600] hover:bg-[#ff5500] text-white font-bold rounded-lg shadow-md transition hover:-translate-y-0.5"
-        >
-          Add to Cart
-        </button>
+
+      {/* Card body — flex-col with space-between to pin price+button to bottom */}
+      <div className="flex flex-col flex-1 p-4 justify-between">
+        <div>
+          <Link href={`/item/${item.id}`} className="block">
+            <h3 className="text-lg font-bold text-[#ffd700] hover:text-[#ffcc00] transition leading-tight line-clamp-1">
+              {item.name}
+            </h3>
+          </Link>
+          <p className="text-gray-400 text-sm mt-1 line-clamp-2 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#ffd700]/10">
+          <span className="text-xl font-bold text-white">Rs. {item.price}</span>
+          <button
+            onClick={() => addItem(item)}
+            className="px-4 py-2 bg-[#ff6600] hover:bg-[#ff5500] text-white text-sm font-bold rounded-lg shadow-md transition hover:-translate-y-0.5 active:translate-y-0"
+          >
+            Add to Cart
+          </button>
+        </div>
       </div>
     </div>
   );
