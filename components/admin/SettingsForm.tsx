@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { updateSettings, type SettingsFormState } from '@/app/actions/settings';
 import toast from 'react-hot-toast';
 
@@ -12,24 +12,22 @@ const initialState: SettingsFormState = { error: null, data: null };
 
 export default function SettingsForm({ initialPhone }: SettingsFormProps) {
   const [state, formAction, isPending] = useActionState(updateSettings, initialState);
-  const [savedNumber, setSavedNumber] = useState(initialPhone || '');
+
+  // Derive saved number — no setState needed
+  const savedNumber = state?.success && state?.data?.phone
+    ? state.data.phone
+    : (initialPhone || '');
 
   const defaultPhone = state?.data?.phone ?? initialPhone ?? '';
 
+  // Fire toasts only once per state change using a ref guard
+  const toastedStateRef = useRef<SettingsFormState | null>(null);
   useEffect(() => {
-    if (state?.error) {
-      toast.error(state.error);
-    }
-    if (state?.success && state?.data?.phone) {
-      setSavedNumber(state.data.phone);
-      toast.success('WhatsApp number updated! All order links now use the new number.');
-    }
+    if (state === toastedStateRef.current) return;
+    toastedStateRef.current = state;
+    if (state?.error) toast.error(state.error);
+    if (state?.success) toast.success('WhatsApp number updated! All order links now use the new number.');
   }, [state]);
-
-  // Also sync when page first loads with initialPhone from DB
-  useEffect(() => {
-    if (initialPhone) setSavedNumber(initialPhone);
-  }, [initialPhone]);
 
   return (
     <form action={formAction} className="space-y-6 max-w-xl">

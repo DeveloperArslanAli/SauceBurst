@@ -1,13 +1,30 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import { useCart } from '@/components/cart/CartContext';
 import { getPublicImageUrl } from '@/app/lib/utils';
 import Link from 'next/link';
 import OrderForm from '@/components/cart/OrderForm';
+import { useEffect, useState } from 'react';
 
 export default function CartPage() {
   const { cart, totalPrice, removeItem, updateQuantity } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-gray-400">Loading your cart...</p>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
